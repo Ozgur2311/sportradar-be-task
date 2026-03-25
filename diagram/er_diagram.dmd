@@ -1,0 +1,8 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="ER Diagram" id="A5904B89-DC13-C115-7FEA-C88192118251" version="3.5">
+<createdBy>ozgur</createdBy>
+<createdTime>2026-03-25 18:17:28 UTC</createdTime>
+<ownerDesignName>ER Diagram</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>A5904B89-DC13-C115-7FEA-C88192118251</designId>
+</OSDM_Design>
