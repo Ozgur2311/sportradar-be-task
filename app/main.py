@@ -1,10 +1,15 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from app.db import get_connection
 from app.schemas import EventCreate
 from app.extras import router as extras_router
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 app.include_router(extras_router)
 
 # Get main site for checking the connection
@@ -278,3 +283,62 @@ def create_event(event: EventCreate):
 
     except Exception as e:
         return {"error": str(e)}
+    
+# Better HTML version for events
+@app.get("/ui/events", response_class=HTMLResponse)
+def events_page(request: Request):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT
+            e.id,
+            e.title,
+            s.name AS sport,
+            l.name AS league,
+            e.event_date,
+            e.event_time,
+            ht.name AS home_team,
+            at.name AS away_team,
+            v.name AS venue,
+            v.city AS city,
+            v.country AS country
+        FROM events e
+        JOIN leagues l ON e.league_id = l.id
+        JOIN sports s ON l.sport_id = s.id
+        JOIN teams ht ON e.home_team_id = ht.id
+        JOIN teams at ON e.away_team_id = at.id
+        JOIN venues v ON e.venue_id = v.id
+        ORDER BY e.event_date, e.event_time
+    """
+
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    events = []
+    for row in rows:
+        events.append({
+            "id": row[0],
+            "title": row[1],
+            "sport": row[2],
+            "league": row[3],
+            "event_date": row[4].strftime("%Y-%m-%d"),
+            "event_time": str(row[5]),
+            "home_team": row[6],
+            "away_team": row[7],
+            "venue": row[8],
+            "city": row[9],
+            "country": row[10],
+        })
+
+    cursor.close()
+    conn.close()
+
+    return templates.TemplateResponse(
+        request,
+        "events.html",
+        {
+            "events": events,
+            "event_count": len(events)
+        }
+    )

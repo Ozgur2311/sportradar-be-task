@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+    <section class="hero-section">
+        <div class="hero-card">
+            <div>
+                <h2>Events Dashboard</h2>
+                <p>Browse all available sports events in the system.</p>
+            </div>
+            <div class="stats-box">
+                <span class="stats-label">Total Events</span>
+                <span class="stats-value">{{ event_count }}</span>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-header">
+            <h2>Events List</h2>
+            <p>All upcoming events currently stored in the database.</p>
+        </div>
+
+        {% if events %}
+            <div class="event-list">
+                {% for event in events %}
+                    <div class="event-card">
+                        <div class="event-card-header">
+                            <h3>{{ event.title }}</h3>
+                            <span class="sport-badge">{{ event.sport }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">League</span>
+                            <span class="info-value">{{ event.league }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Date</span>
+                            <span class="info-value">{{ event.event_date }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Time</span>
+                            <span class="info-value">{{ event.event_time }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Match</span>
+                            <span class="info-value">{{ event.home_team }} vs {{ event.away_team }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Venue</span>
+                            <span class="info-value">{{ event.venue }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Location</span>
+                            <span class="info-value">{{ event.city }}, {{ event.country }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No events found</h3>
+                <p>There are currently no events in the database.</p>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}
