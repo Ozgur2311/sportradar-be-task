@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <section class="top-nav-section">
+        <nav class="top-nav">
+            <a href="/ui/events" class="top-nav-link">Events</a>
+            <a href="/ui/sports" class="top-nav-link {% if page_title == 'Sports' %}active{% endif %}">Sports</a>
+            <a href="/ui/leagues" class="top-nav-link {% if page_title == 'Leagues' %}active{% endif %}">Leagues</a>
+            <a href="/ui/results" class="top-nav-link {% if page_title == 'Results' %}active{% endif %}">Results</a>
+            <a href="/ui/news" class="top-nav-link {% if page_title == 'News' %}active{% endif %}">News</a>
+            <a href="/ui/events/new" class="top-nav-link">Add Event</a>
+        </nav>
+    </section>
+
+    <section class="form-page">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>{{ page_title }}</h2>
+            </div>
+        </div>
+    </section>
+{% endblock %}

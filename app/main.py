@@ -303,7 +303,7 @@ def create_event(event: EventCreate):
     except Exception as e:
         return {"error": str(e)}
     
-# Better HTML version for events
+# Frontend HTML
 @app.get("/ui/events", response_class=HTMLResponse)
 def events_page(request: Request, sport: str = None, search: str = None):
     conn = get_connection()
@@ -385,7 +385,7 @@ def events_page(request: Request, sport: str = None, search: str = None):
         }
     )
 
-# Add new event in frontend
+# Get event from form
 @app.get("/ui/events/new", response_class=HTMLResponse)
 def new_event_page(request: Request):
     leagues, teams, venues = get_form_options()
@@ -402,6 +402,7 @@ def new_event_page(request: Request):
         }
     )
 
+# Add new event getting from form
 @app.post("/ui/events/new", response_class=HTMLResponse)
 def create_event_from_form(
     request: Request,
@@ -503,7 +504,7 @@ def create_event_from_form(
         cursor.close()
         conn.close()
 
-# Single event from HTML
+# Single event from HTML (Details)
 @app.get("/ui/events/{event_id}", response_class=HTMLResponse)
 def event_detail_page(request: Request, event_id: int):
     conn = get_connection()
@@ -561,5 +562,24 @@ def event_detail_page(request: Request, event_id: int):
         "event_detail.html",
         {
             "event": event
+        }
+    )
+
+
+# Empty links for other navigation bars.
+@app.get("/ui/{page_name}", response_class=HTMLResponse)
+def placeholder_page(request: Request, page_name: str):
+    allowed_pages = {"sports", "leagues", "results", "news"}
+
+    if page_name not in allowed_pages:
+        return HTMLResponse(content="<h1>Page not found</h1>", status_code=404)
+
+    page_title = page_name.capitalize()
+
+    return templates.TemplateResponse(
+        request,
+        "placeholder.html",
+        {
+            "page_title": page_title
         }
     )
