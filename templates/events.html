@@ -3,21 +3,15 @@
 {% block title %}Events{% endblock %}
 
 {% block content %}
-    <section class="compact-hero">
-        <div class="compact-hero-left">
-            <h2>Matches</h2>
-            <p>{{ event_count }} events available in the system</p>
-        </div>
-    </section>
-
-    <section class="sports-tabs-section">
-        <div class="sports-tabs">
-            <a href="/ui/events" class="sports-tab {% if not active_sport %}active{% endif %}">All</a>
-            <a href="/ui/events?sport=Football" class="sports-tab {% if active_sport == 'Football' %}active{% endif %}">Football</a>
-            <a href="/ui/events?sport=Basketball" class="sports-tab {% if active_sport == 'Basketball' %}active{% endif %}">Basketball</a>
-            <a href="/ui/events?sport=Volleyball" class="sports-tab {% if active_sport == 'Volleyball' %}active{% endif %}">Volleyball</a>
-            <a href="/ui/events?sport=Baseball" class="sports-tab {% if active_sport == 'Baseball' %}active{% endif %}">Baseball</a>
-        </div>
+    <section class="top-nav-section">
+        <nav class="top-nav">
+            <a href="#" class="top-nav-link active">Events</a>
+            <a href="/ui/events/new" class="top-nav-link">Add Event</a>
+            <a href="#" class="top-nav-link">Sports</a>
+            <a href="#" class="top-nav-link">Leagues</a>
+            <a href="#" class="top-nav-link">Results</a>
+            <a href="#" class="top-nav-link">News</a>
+        </nav>
     </section>
 
     <section class="search-section">
@@ -43,6 +37,16 @@
                 Reset
             </a>
         </form>
+    </section>
+
+    <section class="sports-tabs-section">
+        <div class="sports-tabs">
+            <a href="/ui/events" class="sports-tab {% if not active_sport %}active{% endif %}">All</a>
+            <a href="/ui/events?sport=Football" class="sports-tab {% if active_sport == 'Football' %}active{% endif %}">Football</a>
+            <a href="/ui/events?sport=Basketball" class="sports-tab {% if active_sport == 'Basketball' %}active{% endif %}">Basketball</a>
+            <a href="/ui/events?sport=Volleyball" class="sports-tab {% if active_sport == 'Volleyball' %}active{% endif %}">Volleyball</a>
+            <a href="/ui/events?sport=Baseball" class="sports-tab {% if active_sport == 'Baseball' %}active{% endif %}">Baseball</a>
+        </div>
     </section>
 
     <section class="matches-section">

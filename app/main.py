@@ -1,6 +1,6 @@
 from typing import Optional
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.db import get_connection
@@ -41,6 +41,25 @@ def record_exists(cursor, table_name: str, record_id: int) -> bool:
     cursor.execute(query, {"id": record_id})
     result = cursor.fetchone()
     return result[0] > 0
+
+# Check IDs by given name
+def get_form_options():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, name FROM leagues ORDER BY name")
+    leagues = [{"id": row[0], "name": row[1]} for row in cursor.fetchall()]
+
+    cursor.execute("SELECT id, name FROM teams ORDER BY name")
+    teams = [{"id": row[0], "name": row[1]} for row in cursor.fetchall()]
+
+    cursor.execute("SELECT id, name FROM venues ORDER BY name")
+    venues = [{"id": row[0], "name": row[1]} for row in cursor.fetchall()]
+
+    cursor.close()
+    conn.close()
+
+    return leagues, teams, venues
 
 # Get events from dataset
 @app.get("/events")
@@ -365,6 +384,124 @@ def events_page(request: Request, sport: str = None, search: str = None):
             "search": search or ""
         }
     )
+
+# Add new event in frontend
+@app.get("/ui/events/new", response_class=HTMLResponse)
+def new_event_page(request: Request):
+    leagues, teams, venues = get_form_options()
+
+    return templates.TemplateResponse(
+        request,
+        "event_form.html",
+        {
+            "success_message": None,
+            "error_message": None,
+            "leagues": leagues,
+            "teams": teams,
+            "venues": venues
+        }
+    )
+
+@app.post("/ui/events/new", response_class=HTMLResponse)
+def create_event_from_form(
+    request: Request,
+    title: str = Form(...),
+    event_date: str = Form(...),
+    event_time: str = Form(...),
+    description: str = Form(...),
+    league_id: int = Form(...),
+    home_team_id: int = Form(...),
+    away_team_id: int = Form(...),
+    venue_id: int = Form(...)
+):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        if home_team_id == away_team_id:
+            leagues, teams, venues = get_form_options()
+            return templates.TemplateResponse(
+                request,
+                "event_form.html",
+                {
+                    "success_message": None,
+                    "error_message": "Home team and away team cannot be the same.",
+                    "leagues": leagues,
+                    "teams": teams,
+                    "venues": venues
+                }
+            )
+
+        cursor.execute(
+            """
+            INSERT INTO events (
+                id,
+                title,
+                event_date,
+                event_time,
+                description,
+                league_id,
+                home_team_id,
+                away_team_id,
+                venue_id
+            )
+            VALUES (
+                events_seq.NEXTVAL,
+                :title,
+                TO_DATE(:event_date, 'YYYY-MM-DD'),
+                :event_time,
+                :description,
+                :league_id,
+                :home_team_id,
+                :away_team_id,
+                :venue_id
+            )
+            """,
+            {
+                "title": title,
+                "event_date": event_date,
+                "event_time": event_time,
+                "description": description,
+                "league_id": league_id,
+                "home_team_id": home_team_id,
+                "away_team_id": away_team_id,
+                "venue_id": venue_id
+            }
+        )
+
+        conn.commit()
+
+        leagues, teams, venues = get_form_options()
+        return templates.TemplateResponse(
+            request,
+            "event_form.html",
+            {
+                "success_message": "Event created successfully.",
+                "error_message": None,
+                "leagues": leagues,
+                "teams": teams,
+                "venues": venues
+            }
+        )
+
+    except Exception as e:
+        conn.rollback()
+        leagues, teams, venues = get_form_options()
+        return templates.TemplateResponse(
+            request,
+            "event_form.html",
+            {
+                "success_message": None,
+                "error_message": f"Error while creating event: {str(e)}",
+                "leagues": leagues,
+                "teams": teams,
+                "venues": venues
+            }
+        )
+
+    finally:
+        cursor.close()
+        conn.close()
 
 # Single event from HTML
 @app.get("/ui/events/{event_id}", response_class=HTMLResponse)

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Add Event{% endblock %}
+
+{% block content %}
+    <section class="top-nav-section">
+        <nav class="top-nav">
+            <a href="/ui/events" class="top-nav-link">Events</a>
+            <a href="/ui/events/new" class="top-nav-link active">Add Event</a>
+            <a href="#" class="top-nav-link">Sports</a>
+            <a href="#" class="top-nav-link">Leagues</a>
+            <a href="#" class="top-nav-link">Results</a>
+            <a href="#" class="top-nav-link">News</a>
+        </nav>
+    </section>
+
+    <section class="form-page">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Add New Event</h2>
+                <p>Create a new sports event using the form below.</p>
+            </div>
+
+            {% if success_message %}
+                <div class="message-box success-message">
+                    {{ success_message }}
+                </div>
+            {% endif %}
+
+            {% if error_message %}
+                <div class="message-box error-message">
+                    {{ error_message }}
+                </div>
+            {% endif %}
+
+            <form method="post" action="/ui/events/new" class="event-form">
+                <div class="form-grid">
+                    <div class="form-field full-width">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="event_date">Date</label>
+                        <input type="date" id="event_date" name="event_date" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="event_time">Time</label>
+                        <input type="time" id="event_time" name="event_time" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="league_id">League</label>
+                        <select id="league_id" name="league_id" required>
+                            <option value="">Select league</option>
+                            {% for league in leagues %}
+                                <option value="{{ league.id }}">{{ league.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="venue_id">Venue</label>
+                        <select id="venue_id" name="venue_id" required>
+                            <option value="">Select venue</option>
+                            {% for venue in venues %}
+                                <option value="{{ venue.id }}">{{ venue.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="home_team_id">Home Team</label>
+                        <select id="home_team_id" name="home_team_id" required>
+                            <option value="">Select home team</option>
+                            {% for team in teams %}
+                                <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="away_team_id">Away Team</label>
+                        <select id="away_team_id" name="away_team_id" required>
+                            <option value="">Select away team</option>
+                            {% for team in teams %}
+                                <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-field full-width">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="5" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="search-button">Create Event</button>
+                    <a href="/ui/events" class="reset-button">Back to Events</a>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}
