@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block content %}
+    <section class="detail-page">
+        <div class="back-link-wrapper">
+            <a href="/ui/events" class="back-link">← Back to Events</a>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-header">
+                <div>
+                    <p class="detail-kicker">{{ event.sport }} • {{ event.league }}</p>
+                    <h2>{{ event.home_team }} vs {{ event.away_team }}</h2>
+                </div>
+                <span class="sport-pill">{{ event.sport }}</span>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Title</span>
+                    <span class="detail-value">{{ event.title }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ event.event_date }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Time</span>
+                    <span class="detail-value">{{ event.event_time }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Home Team</span>
+                    <span class="detail-value">{{ event.home_team }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Away Team</span>
+                    <span class="detail-value">{{ event.away_team }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Venue</span>
+                    <span class="detail-value">{{ event.venue }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">City</span>
+                    <span class="detail-value">{{ event.city }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Country</span>
+                    <span class="detail-value">{{ event.country }}</span>
+                </div>
+            </div>
+
+            <div class="detail-description">
+                <h3>Description</h3>
+                <p>{{ event.description }}</p>
+            </div>
+        </div>
+    </section>
+{% endblock %}

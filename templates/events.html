@@ -3,62 +3,79 @@
 {% block title %}Events{% endblock %}
 
 {% block content %}
-    <section class="hero-section">
-        <div class="hero-card">
-            <div>
-                <h2>Events Dashboard</h2>
-                <p>Browse all available sports events in the system.</p>
-            </div>
-            <div class="stats-box">
-                <span class="stats-label">Total Events</span>
-                <span class="stats-value">{{ event_count }}</span>
-            </div>
+    <section class="compact-hero">
+        <div class="compact-hero-left">
+            <h2>Matches</h2>
+            <p>{{ event_count }} events available in the system</p>
         </div>
     </section>
 
-    <section>
-        <div class="section-header">
-            <h2>Events List</h2>
-            <p>All upcoming events currently stored in the database.</p>
+    <section class="sports-tabs-section">
+        <div class="sports-tabs">
+            <a href="/ui/events" class="sports-tab {% if not active_sport %}active{% endif %}">All</a>
+            <a href="/ui/events?sport=Football" class="sports-tab {% if active_sport == 'Football' %}active{% endif %}">Football</a>
+            <a href="/ui/events?sport=Basketball" class="sports-tab {% if active_sport == 'Basketball' %}active{% endif %}">Basketball</a>
+            <a href="/ui/events?sport=Volleyball" class="sports-tab {% if active_sport == 'Volleyball' %}active{% endif %}">Volleyball</a>
+            <a href="/ui/events?sport=Baseball" class="sports-tab {% if active_sport == 'Baseball' %}active{% endif %}">Baseball</a>
+        </div>
+    </section>
+
+    <section class="search-section">
+        <form method="get" action="/ui/events" class="search-form">
+            {% if active_sport %}
+                <input type="hidden" name="sport" value="{{ active_sport }}">
+            {% endif %}
+
+            <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Search team or league..."
+                value="{{ search }}"
+            >
+
+            <button type="submit" class="search-button">Search</button>
+
+            <a
+                href="{% if active_sport %}/ui/events?sport={{ active_sport }}{% else %}/ui/events{% endif %}"
+                class="reset-button"
+            >
+                Reset
+            </a>
+        </form>
+    </section>
+
+    <section class="matches-section">
+        <div class="matches-header">
+            <div class="matches-header-left">
+                <h3>Upcoming Events</h3>
+                <p>Compact list view</p>
+            </div>
         </div>
 
         {% if events %}
-            <div class="event-list">
+            <div class="match-list">
                 {% for event in events %}
-                    <div class="event-card">
-                        <div class="event-card-header">
-                            <h3>{{ event.title }}</h3>
-                            <span class="sport-badge">{{ event.sport }}</span>
+                    <div class="match-row">
+                        <div class="match-time-block">
+                            <span class="match-date">{{ event.event_date }}</span>
+                            <span class="match-time">{{ event.event_time }}</span>
                         </div>
 
-                        <div class="info-row">
-                            <span class="info-label">League</span>
-                            <span class="info-value">{{ event.league }}</span>
+                        <div class="match-main-block">
+                            <div class="match-teams">
+                                <div class="team-name">{{ event.home_team }}</div>
+                                <div class="team-name">{{ event.away_team }}</div>
+                            </div>
+
+                            <div class="match-meta">
+                                {{ event.league }} • {{ event.venue }} • {{ event.city }}
+                            </div>
                         </div>
 
-                        <div class="info-row">
-                            <span class="info-label">Date</span>
-                            <span class="info-value">{{ event.event_date }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span class="info-label">Time</span>
-                            <span class="info-value">{{ event.event_time }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span class="info-label">Match</span>
-                            <span class="info-value">{{ event.home_team }} vs {{ event.away_team }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span class="info-label">Venue</span>
-                            <span class="info-value">{{ event.venue }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span class="info-label">Location</span>
-                            <span class="info-value">{{ event.city }}, {{ event.country }}</span>
+                        <div class="match-side-block">
+                            <span class="sport-pill">{{ event.sport }}</span>
+                            <a href="/ui/events/{{ event.id }}" class="details-link">Details →</a>
                         </div>
                     </div>
                 {% endfor %}

@@ -286,7 +286,7 @@ def create_event(event: EventCreate):
     
 # Better HTML version for events
 @app.get("/ui/events", response_class=HTMLResponse)
-def events_page(request: Request):
+def events_page(request: Request, sport: str = None, search: str = None):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -309,10 +309,31 @@ def events_page(request: Request):
         JOIN teams ht ON e.home_team_id = ht.id
         JOIN teams at ON e.away_team_id = at.id
         JOIN venues v ON e.venue_id = v.id
-        ORDER BY e.event_date, e.event_time
     """
 
-    cursor.execute(query)
+    conditions = []
+    params = {}
+
+    if sport:
+        conditions.append("s.name = :sport")
+        params["sport"] = sport
+
+    if search:
+        conditions.append("""
+            (
+                INSTR(LOWER(ht.name), LOWER(:search)) > 0
+                OR INSTR(LOWER(at.name), LOWER(:search)) > 0
+                OR INSTR(LOWER(l.name), LOWER(:search)) > 0
+            )
+        """)
+        params["search"] = search
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    query += " ORDER BY s.id, e.event_date, e.event_time"
+
+    cursor.execute(query, params)
     rows = cursor.fetchall()
 
     events = []
@@ -322,7 +343,7 @@ def events_page(request: Request):
             "title": row[1],
             "sport": row[2],
             "league": row[3],
-            "event_date": row[4].strftime("%Y-%m-%d"),
+            "event_date": str(row[4])[:10],
             "event_time": str(row[5]),
             "home_team": row[6],
             "away_team": row[7],
@@ -339,6 +360,69 @@ def events_page(request: Request):
         "events.html",
         {
             "events": events,
-            "event_count": len(events)
+            "event_count": len(events),
+            "active_sport": sport,
+            "search": search or ""
+        }
+    )
+
+# Single event from HTML
+@app.get("/ui/events/{event_id}", response_class=HTMLResponse)
+def event_detail_page(request: Request, event_id: int):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT
+            e.id,
+            e.title,
+            s.name AS sport,
+            l.name AS league,
+            e.event_date,
+            e.event_time,
+            ht.name AS home_team,
+            at.name AS away_team,
+            v.name AS venue,
+            v.city AS city,
+            v.country AS country,
+            e.description
+        FROM events e
+        JOIN leagues l ON e.league_id = l.id
+        JOIN sports s ON l.sport_id = s.id
+        JOIN teams ht ON e.home_team_id = ht.id
+        JOIN teams at ON e.away_team_id = at.id
+        JOIN venues v ON e.venue_id = v.id
+        WHERE e.id = :event_id
+    """
+
+    cursor.execute(query, {"event_id": event_id})
+    row = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not row:
+        return HTMLResponse(content="<h1>Event not found</h1>", status_code=404)
+
+    event = {
+        "id": row[0],
+        "title": row[1],
+        "sport": row[2],
+        "league": row[3],
+        "event_date": str(row[4])[:10],
+        "event_time": str(row[5]),
+        "home_team": row[6],
+        "away_team": row[7],
+        "venue": row[8],
+        "city": row[9],
+        "country": row[10],
+        "description": row[11],
+    }
+
+    return templates.TemplateResponse(
+        request,
+        "event_detail.html",
+        {
+            "event": event
         }
     )
